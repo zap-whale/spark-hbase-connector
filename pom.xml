@@ -61,8 +61,11 @@
   </properties>
 
   <modules>
+    <module>util</module>
+    <module>test-util</module>
     <module>core</module>
     <module>examples</module>
+    <module>phoenix-support</module>
   </modules>
 
   <repositories>

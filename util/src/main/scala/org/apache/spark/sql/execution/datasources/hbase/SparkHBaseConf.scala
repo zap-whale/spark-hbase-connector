@@ -21,8 +21,6 @@
 package org.apache.spark.sql.execution.datasources.hbase
 
 import org.apache.hadoop.conf.Configuration
-import org.apache.spark.sql.execution.datasources.hbase.types._
-
 
 object SparkHBaseConf {
   val testConf = "spark.hbase.connector.test"
@@ -33,6 +31,8 @@ object SparkHBaseConf {
   val principal = "spark.hbase.connector.security.credentials"
   val keytab = "spark.hbase.connector.security.keytab"
 
+  val rowKey = "rowkey"
+
   var conf: Configuration = _
   var BulkGetSize = "spark.hbase.connector.bulkGetSize"
   var defaultBulkGetSize = 100
@@ -42,7 +42,7 @@ object SparkHBaseConf {
   val connectionCloseDelay = 10 * 60 * 1000
 
   // for SHC DataType
-  val Avro = classOf[Avro].getSimpleName
-  val Phoenix = classOf[Phoenix].getSimpleName
-  val PrimitiveType = classOf[PrimitiveType].getSimpleName
+  val Avro = "Avro"
+  val Phoenix = "Phoenix"
+  val PrimitiveType = "PrimitiveType"
 }

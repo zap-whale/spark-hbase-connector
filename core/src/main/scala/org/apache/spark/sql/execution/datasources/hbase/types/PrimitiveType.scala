@@ -22,9 +22,16 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.sql.execution.datasources.hbase._
 
-class PrimitiveType(f:Option[Field] = None) extends SHCDataType {
+object PrimitiveType {
+  def apply(f: Option[Field]): PrimitiveType = {
+    val dt: Option[DataType] = if (f.isDefined) Some(f.get.dt) else None
+    new PrimitiveType(dt)
+  }
+}
 
-  private def fromBytes(src: HBaseType, dt: DataType): Any  = dt match {
+class PrimitiveType(private val dt: Option[DataType] = None) extends SHCDataType {
+
+  private def fromBytes(src: HBaseType, dt: DataType): Any = dt match {
     case BooleanType => toBoolean(src)
     case ByteType => src(0)
     case DoubleType => Bytes.toDouble(src)
@@ -36,12 +43,12 @@ class PrimitiveType(f:Option[Field] = None) extends SHCDataType {
     case BinaryType => src
     // this block MapType in future if connector want to support it
     case m: MapType => fromBytes(src, m.valueType)
-    case _ => throw new UnsupportedOperationException(s"unsupported data type ${f.get.dt}")
+    case _ => throw new UnsupportedOperationException(s"unsupported data type ${dt}")
   }
 
   def fromBytes(src: HBaseType): Any = {
-    if (f.isDefined) {
-      fromBytes(src, f.get.dt)
+    if (dt.isDefined) {
+      fromBytes(src, dt.get)
     } else {
       throw new UnsupportedOperationException(
         "PrimitiveType coder: without field metadata, " +

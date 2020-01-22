@@ -17,7 +17,7 @@
 package org.apache.spark.sql.execution.datasources.hbase.types
 
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.execution.datasources.hbase._
+import org.apache.spark.sql.execution.datasources.hbase.{Field,HBaseType}
 
 trait SHCDataType extends Serializable {
   // Parse the hbase Field to it's corresponding Scala type which can then be put into
@@ -46,59 +46,5 @@ trait SHCDataType extends Serializable {
 
   def encodeCompositeRowKey(rkIdxedFields:Seq[(Int, Field)], row: Row): Seq[Array[Byte]] = {
     throw new UnsupportedOperationException("Composite key is not supported")
-  }
-}
-
-/**
- * Currently, SHC supports three data types which can be used as serdes: Avro, Phoenix, PrimitiveType.
- * Adding New SHC data type needs to implement the trait 'SHCDataType'.
- */
-object SHCDataTypeFactory {
-
-  def create(f: Field): SHCDataType = {
-    if (f == null) {
-      throw new NullPointerException(
-        "SHCDataTypeFactory: the 'f' parameter used to create SHCDataType " +
-          "can not be null.")
-    }
-
-    if (f.fCoder == SparkHBaseConf.Avro) {
-      new Avro(Some(f))
-    } else if (f.fCoder == SparkHBaseConf.Phoenix) {
-      new Phoenix(Some(f))
-    } else if (f.fCoder == SparkHBaseConf.PrimitiveType) {
-      new PrimitiveType(Some(f))
-    } else {
-      // Data type implemented by user
-      Class.forName(f.fCoder)
-        .getConstructor(classOf[Option[Field]])
-        .newInstance(Some(f))
-        .asInstanceOf[SHCDataType]
-    }
-  }
-
-  // Currently, the function below is only used for creating the table coder.
-  // One catalog/HBase table can only use one table coder, so the function is
-  // only called once in 'HBaseTableCatalog' class.
-  def create(coder: String): SHCDataType = {
-    if (coder == null || coder.isEmpty) {
-      throw new NullPointerException(
-        "SHCDataTypeFactory: the 'coder' parameter used to create SHCDataType " +
-          "can not be null or empty.")
-    }
-
-    if (coder == SparkHBaseConf.Avro) {
-      new Avro()
-    } else if (coder == SparkHBaseConf.Phoenix) {
-      new Phoenix()
-    } else if (coder == SparkHBaseConf.PrimitiveType) {
-      new PrimitiveType()
-    } else {
-      // Data type implemented by user
-      Class.forName(coder)
-        .getConstructor(classOf[Option[Field]])
-        .newInstance(None)
-        .asInstanceOf[SHCDataType]
-    }
   }
 }

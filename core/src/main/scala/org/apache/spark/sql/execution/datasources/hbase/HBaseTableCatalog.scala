@@ -68,67 +68,6 @@ object CatalogVersion {
   }
 }
 
-// The definition of each column cell, which may be composite type
-case class Field(
-    colName: String,
-    cf: String,
-    col: String,
-    fCoder: String,
-    sType: Option[String] = None,
-    avroSchema: Option[String] = None,
-    len: Int = -1) extends Logging {
-
-  val isRowKey = cf == HBaseTableCatalog.rowKey
-  var start: Int = _
-  def schema: Option[Schema] = avroSchema.map { x =>
-    logDebug(s"avro: $x")
-    val p = new Schema.Parser
-    p.parse(x)
-  }
-
-  lazy val exeSchema = schema
-
-  // converter from avro to catalyst structure
-  lazy val avroToCatalyst: Option[Any => Any] = {
-    schema.map(SchemaConverters.createConverterToSQL)
-  }
-
-  // converter from catalyst to avro
-  lazy val catalystToAvro: (Any) => Any ={
-    SchemaConverters.createConverterToAvro(dt, colName, "recordNamespace")
-  }
-
-  val dt =
-    if (avroSchema.isDefined)
-      schema.map(SchemaConverters.toSqlType(_).dataType).get
-    else
-      sType.map(CatalystSqlParser.parseDataType).get
-
-  val length: Int = {
-    if (len == -1) {
-      dt match {
-        case BinaryType | StringType => -1
-        case BooleanType => Bytes.SIZEOF_BOOLEAN
-        case ByteType => 1
-        case DoubleType => Bytes.SIZEOF_DOUBLE
-        case FloatType => Bytes.SIZEOF_FLOAT
-        case IntegerType => Bytes.SIZEOF_INT
-        case LongType => Bytes.SIZEOF_LONG
-        case ShortType => Bytes.SIZEOF_SHORT
-        case _ => -1
-      }
-    } else {
-      len
-    }
-  }
-
-  override def equals(other: Any): Boolean = other match {
-    case that: Field =>
-      colName == that.colName && cf == that.cf && col == that.col
-    case _ => false
-  }
-}
-
 // The row key definition, with each key refer to the col defined in Field, e.g.,
 // key1:key2:key3
 case class RowKey(k: String) {
@@ -177,7 +116,7 @@ case class HBaseTableCatalog(
   }
 
   //this is required to read fromBytes column families and qualifiers
-  val stringField = Field("","","",tCoder,Some("string"))
+  val stringField = Field("","","",StringType)
   val shcTableCoder = SHCDataTypeFactory.create(stringField)
 
   def initRowKey() = {
@@ -230,7 +169,7 @@ object HBaseTableCatalog {
   // The json string specifying hbase catalog information
   val tableCatalog = "catalog"
   // The row key with format key1:key2 specifying table row key
-  val rowKey = "rowkey"
+  val rowKey = SparkHBaseConf.rowKey 
   // The key for hbase table whose value specify namespace and table name
   val table = "table"
   // The namespace of hbase table
