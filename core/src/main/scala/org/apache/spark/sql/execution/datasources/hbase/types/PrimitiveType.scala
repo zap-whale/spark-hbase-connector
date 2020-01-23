@@ -22,16 +22,12 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.sql.execution.datasources.hbase._
 
-object PrimitiveType {
-  def apply(f: Option[Field]): PrimitiveType = {
-    val dt: Option[DataType] = if (f.isDefined) Some(f.get.dt) else None
-    new PrimitiveType(dt)
+class PrimitiveType(private val dt: DataType = StringType) extends SHCDataType {
+  def this(f: Option[Field]) = {
+    this(if (f.isDefined) f.get.dt else StringType)
   }
-}
 
-class PrimitiveType(private val dt: Option[DataType] = None) extends SHCDataType {
-
-  private def fromBytes(src: HBaseType, dt: DataType): Any = dt match {
+  def fromBytes(src: HBaseType, dt: DataType): Any = dt match {
     case BooleanType => toBoolean(src)
     case ByteType => src(0)
     case DoubleType => Bytes.toDouble(src)
@@ -46,16 +42,7 @@ class PrimitiveType(private val dt: Option[DataType] = None) extends SHCDataType
     case _ => throw new UnsupportedOperationException(s"unsupported data type ${dt}")
   }
 
-  def fromBytes(src: HBaseType): Any = {
-    if (dt.isDefined) {
-      fromBytes(src, dt.get)
-    } else {
-      throw new UnsupportedOperationException(
-        "PrimitiveType coder: without field metadata, " +
-          "'fromBytes' conversion can not be supported")
-    }
-  }
-
+  def fromBytes(src: HBaseType): Any = fromBytes(src, dt)    
 
   def toBytes(input: Any): Array[Byte] = {
     input match {

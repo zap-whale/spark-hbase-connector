@@ -17,6 +17,7 @@
 package org.apache.spark.sql.execution.datasources.hbase.types
 
 import org.apache.spark.sql.execution.datasources.hbase._
+import org.apache.spark.sql.types.{DataType, StringType}
 
 /**
  * Currently, SHC supports three data types which can be used as serdes: Avro, Phoenix, PrimitiveType.
@@ -31,7 +32,8 @@ object SHCDataTypeFactory {
           "can not be null.")
     }
 
-    Class.forName(getClassName(f.fCoder))
+    val className = getClassName(f.fCoder)
+    Class.forName(className)
         .getConstructor(classOf[Option[Field]])
         .newInstance(Some(f))
         .asInstanceOf[SHCDataType]
@@ -47,16 +49,17 @@ object SHCDataTypeFactory {
           "can not be null or empty.")
     }
 
+    val className = getClassName(coder)
     Class.forName(getClassName(coder))
-        .getConstructor(classOf[Option[Field]])
-        .newInstance(None)
+        .getConstructor(classOf[DataType])
+        .newInstance(StringType)
         .asInstanceOf[SHCDataType]
   }
 
   def create(serializedType: String, coder: String = SparkHBaseConf.PrimitiveType): SHCDataType = {
     Class.forName(getClassName(coder))
-        .getConstructor(classOf[String])
-        .newInstance(serializedType)
+        .getConstructor(classOf[DataType])
+        .newInstance(StringType)
         .asInstanceOf[SHCDataType]
   }
 

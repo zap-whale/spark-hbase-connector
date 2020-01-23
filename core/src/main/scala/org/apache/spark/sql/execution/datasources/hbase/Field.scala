@@ -48,7 +48,7 @@ object Field extends Logging {
 }
 
 // The definition of each column cell, which may be composite type
-class Field(
+case class Field(
     val colName: String,
     val cf: String,
     val col: String,
@@ -99,7 +99,7 @@ class Field(
 
   override def equals(other: Any): Boolean = other match {
     case that: Field =>
-      colName == that.colName && cf == that.cf && col == that.col && dt == that.dt
+      colName == that.colName && cf == that.cf && col == that.col
     case _ => false
   }
 }
