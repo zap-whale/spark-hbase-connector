@@ -19,29 +19,4 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.types
 
-import org.apache.spark.sql.execution.datasources.hbase.{Field, HBaseType}
-
-class Avro(f:Option[Field] = None) extends SHCDataType {
-
-  def fromBytes(src: HBaseType): Any = {
-    if (f.isDefined) {
-      val m = AvroSerde.deserialize(src, f.get.exeSchema.get)
-      val n = f.get.avroToCatalyst.map(_ (m))
-      n.get
-    } else {
-      throw new UnsupportedOperationException(
-        "Avro coder: without field metadata, 'fromBytes' conversion can not be supported")
-    }
-  }
-
-  def toBytes(input: Any): Array[Byte] = {
-    // Here we assume the top level type is structType
-    if (f.isDefined) {
-      val record = f.get.catalystToAvro(input)
-      AvroSerde.serialize(record, f.get.schema.get)
-    } else {
-      throw new UnsupportedOperationException(
-        "Avro coder: Without field metadata, 'toBytes' conversion can not be supported")
-    }
-  }
-}
+abstract class AvroException(msg: String) extends Exception(msg)
