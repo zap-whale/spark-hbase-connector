@@ -29,16 +29,16 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.execution.datasources.hbase._
 import org.apache.spark.sql.types._
 
-class Phoenix(f:Option[Field] = None) extends SHCDataType {
+case class Phoenix(private val dt: DataType) extends SHCDataType {
+
+  def this(field: Option[Field] = None) {
+    this(if (field.isDefined) field.get.dt else StringType)
+  }
+
   private var schema: RowKeySchema = null
 
   def fromBytes(src: HBaseType): Any = {
-    if (f.isDefined) {
-      mapToPhoenixTypeInstance(f.get.dt).toObject(src)
-    } else {
-      throw new UnsupportedOperationException(
-        "Phoenix coder: without field metadata, 'fromBytes' conversion can not be supported")
-    }
+    mapToPhoenixTypeInstance(dt).toObject(src)
   }
 
   def toBytes(input: Any): Array[Byte] = {

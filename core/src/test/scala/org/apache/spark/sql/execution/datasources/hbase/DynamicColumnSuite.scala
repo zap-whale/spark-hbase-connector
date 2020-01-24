@@ -18,11 +18,10 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.execution.datasources.hbase.Logging
-import org.apache.spark.sql.execution.datasources.hbase.{HBaseRelation, HBaseTableCatalog}
+import org.apache.spark.sql.{DataFrame, DatasetHolder, Encoder}
 
 import scala.reflect.ClassTag
 

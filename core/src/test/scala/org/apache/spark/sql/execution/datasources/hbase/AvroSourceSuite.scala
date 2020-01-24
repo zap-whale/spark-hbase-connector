@@ -18,47 +18,61 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.spark.sql.execution.datasources.hbase.Logging
+
+import org.apache.spark.sql.DataFrame
+
 import org.apache.spark.sql.execution.datasources.hbase.types.AvroSerde
-import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog
 
-case class AvroHBaseKeyRecord(col0: Array[Byte], col1: Array[Byte])
+case class AvroHBaseRecord(col0: String,
+                           col1: Array[Byte])
 
-object AvroHBaseKeyRecord {
+object AvroHBaseRecord {
   val schemaString =
     s"""{"namespace": "example.avro",
          |   "type": "record", "name": "User",
-         |    "fields": [ {"name": "name", "type": "string"},
-         |      {"name": "favorite_number",  "type": ["int", "null"]},
-         |        {"name": "favorite_color", "type": ["string", "null"]} ] }""".stripMargin
+         |    "fields": [
+         |        {"name": "name", "type": "string"},
+         |        {"name": "favorite_number",  "type": ["int", "null"]},
+         |        {"name": "favorite_color", "type": ["string", "null"]},
+         |        {"name": "favorite_array", "type": {"type": "array", "items": "string"}},
+         |        {"name": "favorite_map", "type": {"type": "map", "values": "int"}}
+         |      ]    }""".stripMargin
 
   val avroSchema: Schema = {
     val p = new Schema.Parser
     p.parse(schemaString)
   }
 
-  def apply(i: Int): AvroHBaseKeyRecord = {
+  def apply(i: Int): AvroHBaseRecord = {
+
     val user = new GenericData.Record(avroSchema);
     user.put("name", s"name${"%03d".format(i)}")
     user.put("favorite_number", i)
     user.put("favorite_color", s"color${"%03d".format(i)}")
+    val favoriteArray = new GenericData.Array[String](2, avroSchema.getField("favorite_array").schema())
+    favoriteArray.add(s"number${i}")
+    favoriteArray.add(s"number${i+1}")
+    user.put("favorite_array", favoriteArray)
+    import collection.JavaConverters._
+    val favoriteMap = Map[String, Int](("key1" -> i), ("key2" -> (i+1))).asJava
+    user.put("favorite_map", favoriteMap)
     val avroByte = AvroSerde.serialize(user, avroSchema)
-    AvroHBaseKeyRecord(avroByte, avroByte)
+    AvroHBaseRecord(s"name${"%03d".format(i)}", avroByte)
   }
 }
 
-class AvroSourceKeySuite extends SHC with Logging{
+class AvroSourceSuite extends SHC with Logging{
 
   // 'catalog' is used when saving data to HBase
   override def catalog = s"""{
             |"table":{"namespace":"default", "name":"avrotable", "tableCoder":"PrimitiveType"},
             |"rowkey":"key",
             |"columns":{
-              |"col0":{"cf":"rowkey", "col":"key", "type":"binary"},
+              |"col0":{"cf":"rowkey", "col":"key", "type":"string"},
               |"col1":{"cf":"cf1", "col":"col1", "type":"binary"}
             |}
           |}""".stripMargin
@@ -67,7 +81,7 @@ class AvroSourceKeySuite extends SHC with Logging{
             |"table":{"namespace":"default", "name":"avrotable", "tableCoder":"PrimitiveType"},
             |"rowkey":"key",
             |"columns":{
-              |"col0":{"cf":"rowkey", "col":"key", "avro":"avroSchema"},
+              |"col0":{"cf":"rowkey", "col":"key", "type":"string"},
               |"col1":{"cf":"cf1", "col":"col1", "avro":"avroSchema"}
             |}
           |}""".stripMargin
@@ -76,16 +90,15 @@ class AvroSourceKeySuite extends SHC with Logging{
             |"table":{"namespace":"default", "name":"avrotableInsert", "tableCoder":"PrimitiveType"},
             |"rowkey":"key",
             |"columns":{
-              |"col0":{"cf":"rowkey", "col":"key", "avro":"avroSchema"},
+              |"col0":{"cf":"rowkey", "col":"key", "type":"string"},
               |"col1":{"cf":"cf1", "col":"col1", "avro":"avroSchema"}
             |}
           |}""".stripMargin
 
-
   def withCatalog(cat: String): DataFrame = {
     sqlContext
       .read
-      .options(Map("avroSchema" -> AvroHBaseKeyRecord.schemaString, HBaseTableCatalog.tableCatalog -> cat))
+      .options(Map("avroSchema" -> AvroHBaseRecord.schemaString, HBaseTableCatalog.tableCatalog -> cat))
       .format("org.apache.spark.sql.execution.datasources.hbase")
       .load()
   }
@@ -96,7 +109,7 @@ class AvroSourceKeySuite extends SHC with Logging{
     import sql.implicits._
 
     val data = (0 to 255).map { i =>
-      AvroHBaseKeyRecord(i)
+      AvroHBaseRecord(i)
     }
     sc.parallelize(data).toDF.write.options(
       Map(HBaseTableCatalog.tableCatalog -> catalog, HBaseTableCatalog.newTable -> "5"))
@@ -118,10 +131,33 @@ class AvroSourceKeySuite extends SHC with Logging{
     assert(df.count() == 256)
   }
 
+  test("array field") {
+    val df = withCatalog(avroCatalog)
+    val filtered = df.select($"col0", $"col1.favorite_array").where($"col0" === "name001")
+    assert(filtered.count() == 1)
+    val collected = filtered.collect()
+    assert(collected(0).getSeq[String](1)(0) === "number1")
+    assert(collected(0).getSeq[String](1)(1) === "number2")
+  }
+
+  test("map field") {
+    val df = withCatalog(avroCatalog)
+    val filtered = df.select(
+        $"col0",
+        $"col1.favorite_map".getItem("key1").as("key1"),
+        $"col1.favorite_map".getItem("key2").as("key2")
+      )
+      .where($"col0" === "name001")
+    assert(filtered.count() == 1)
+    val collected = filtered.collect()
+    assert(collected(0)(1) === 1)
+    assert(collected(0)(2) === 2)
+  }
+
   test("serialization and deserialization query") {
     val df = withCatalog(avroCatalog)
     df.write.options(
-      Map("avroSchema"->AvroHBaseKeyRecord.schemaString, HBaseTableCatalog.tableCatalog->avroCatalogInsert,
+      Map("avroSchema"->AvroHBaseRecord.schemaString, HBaseTableCatalog.tableCatalog->avroCatalogInsert,
         HBaseTableCatalog.newTable -> "5"))
       .format("org.apache.spark.sql.execution.datasources.hbase")
       .save()
@@ -133,8 +169,7 @@ class AvroSourceKeySuite extends SHC with Logging{
 
   test("filtered query") {
     val df = withCatalog(avroCatalog)
-    val r = df.filter($"col1.name" === "name005" || $"col1.name" <= "name005")
-      .select("col0", "col1.favorite_color", "col1.favorite_number")
+    val r = df.filter($"col1.name" === "name005" || $"col1.name" <= "name005").select("col0", "col1.favorite_color", "col1.favorite_number")
     r.show
     assert(r.count() == 6)
   }
@@ -146,4 +181,14 @@ class AvroSourceKeySuite extends SHC with Logging{
     s.show
     assert(s.count() == 7)
   }
+
+  test("IN and Not IN filter") {
+    val df = withCatalog(avroCatalog)
+    val s = df.filter(($"col0" isin ("name000", "name001", "name002", "name003", "name004")) and !($"col0" isin ("name001", "name002", "name003")))
+      .select("col0", "col1.favorite_number", "col1.favorite_color")
+    s.explain(true)
+    s.show
+    assert(s.count() == 2)
+  }
+
 }

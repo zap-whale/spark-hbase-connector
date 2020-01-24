@@ -125,13 +125,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-testing-util</artifactId>
-      <type>test-jar</type>
-      <version>${hbase.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

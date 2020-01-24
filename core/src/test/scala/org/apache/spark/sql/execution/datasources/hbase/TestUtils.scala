@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import java.nio.ByteBuffer
 import java.util.{ArrayList, HashMap}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import scala.util.Random
 
@@ -22,7 +22,6 @@ import java.nio.ByteBuffer
 
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.spark.sql.execution.datasources.hbase.Logging
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 import org.apache.spark.sql.execution.datasources.hbase.types._
 

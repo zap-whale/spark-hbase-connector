@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
-import org.apache.spark.sql.execution.datasources.hbase.Logging
-import org.apache.spark.sql.execution.datasources.hbase.{HBaseRelation, HBaseTableCatalog}
+import org.apache.spark.sql.DataFrame
 
 class MaxVersionsSuite extends SHC with Logging {
 

@@ -18,11 +18,9 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
-import org.apache.spark.sql.execution.datasources.hbase.Logging
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
-import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog
 
 class CatalogSuite  extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll  with Logging{
   def catalog = s"""{

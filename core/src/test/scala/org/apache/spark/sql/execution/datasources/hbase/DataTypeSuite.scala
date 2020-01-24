@@ -18,9 +18,9 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
-import org.apache.spark.sql.execution.datasources.hbase.{HBaseTableCatalog, Logging}
+import org.apache.spark.sql.DataFrame
 
 case class IntKeyRecord(
     col0: Integer,

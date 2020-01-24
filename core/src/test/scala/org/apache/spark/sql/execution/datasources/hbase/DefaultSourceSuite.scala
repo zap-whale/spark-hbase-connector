@@ -18,11 +18,11 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import org.apache.hadoop.hbase.TableName
-import org.apache.spark.sql.execution.datasources.hbase.Logging
-import org.apache.spark.sql.execution.datasources.hbase.{HBaseRelation, HBaseTableCatalog}
+
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.PrunedFilteredScan
 

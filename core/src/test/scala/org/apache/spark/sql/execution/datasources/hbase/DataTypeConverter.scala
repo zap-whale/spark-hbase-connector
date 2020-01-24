@@ -18,11 +18,10 @@
  * the Apache Software License, Version 2.0.
  */
 
-package org.apache.spark.sql
+package org.apache.spark.sql.execution.datasources.hbase
 
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.execution.datasources.hbase.Logging
-import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog
+import org.apache.spark.sql.SparkSession
 
 class DataTypeConverter extends SHC with Logging{
   ignore("Basic setup") {
