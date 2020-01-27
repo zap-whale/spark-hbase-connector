@@ -104,7 +104,7 @@ object DataCoder {
       .select($"col0", $"col1").show
     df.filter($"col0" > "row250")
       .select($"col0", $"col1").show
-    df.registerTempTable("table1")
+    df.createOrReplaceTempView("table1")
     val c = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
     c.show()
   }

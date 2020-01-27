@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.{TableName, HBaseTestingUtility}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
 
 class HBaseTestSuite extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with Logging {
-  private[hbase] var htu = HBaseTestingUtility.createLocalHTU()
+  private[hbase] var htu = new HBaseTestingUtility()
   private[hbase] var tableName: Array[Byte] = Bytes.toBytes("t1")
   private[hbase] var columnFamily: Array[Byte] = Bytes.toBytes("cf0")
   private[hbase] var columnFamilies: Array[Array[Byte]] =

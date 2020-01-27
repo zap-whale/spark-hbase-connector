@@ -105,7 +105,7 @@ class PhoenixSuite extends SHC with Logging {
 
   test("empty column") {
     val df = withCatalog(catalog)
-    df.registerTempTable("table0")
+    df.createOrReplaceTempView("table0")
     val c = sqlContext.sql("select count(1) from table0").rdd.collect()(0)(0).asInstanceOf[Long]
     assert(c == 256)
   }

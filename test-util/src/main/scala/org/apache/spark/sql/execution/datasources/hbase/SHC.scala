@@ -66,9 +66,6 @@ class SHC extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll with L
                                             |}
                                          |}""".stripMargin
 
-  @deprecated(since = "04.12.2017(dd/mm/year)", message = "use `defineCatalog` instead")
-  def catalog = defineCatalog(tableName)
-
   override def beforeAll() {
     val tempDir: File = Files.createTempDir
     tempDir.deleteOnExit

@@ -24,7 +24,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
 import scala.math.Ordering
 
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp
+import org.apache.hadoop.hbase.CompareOperator
 import org.apache.hadoop.hbase.filter.{Filter => HFilter, FilterList => HFilterList,_}
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.sql.execution.datasources.hbase
@@ -183,13 +183,13 @@ object HBaseFilter extends Logging{
             val lower = new SingleColumnValueFilter(
               tCoder.toBytes(f.cf),
               tCoder.toBytes(f.col),
-              CompareOp.GREATER_OR_EQUAL,
+              CompareOperator.GREATER_OR_EQUAL,
               x.low)
             val low = TypedFilter(Some(lower), FilterType.Atomic)
             val upper = new SingleColumnValueFilter(
               tCoder.toBytes(f.cf),
               tCoder.toBytes(f.col),
-              CompareOp.LESS_OR_EQUAL,
+              CompareOperator.LESS_OR_EQUAL,
               x.upper)
             val up = TypedFilter(Some(upper), FilterType.Atomic)
             TypedFilter.and(low, up)
@@ -226,13 +226,13 @@ object HBaseFilter extends Logging{
             val lower = new SingleColumnValueFilter(
               tCoder.toBytes(f.cf),
               tCoder.toBytes(f.col),
-              CompareOp.GREATER_OR_EQUAL,
+              CompareOperator.GREATER_OR_EQUAL,
               x.low)
             val low = TypedFilter(Some(lower), FilterType.Atomic)
             val upper = new SingleColumnValueFilter(
               tCoder.toBytes(f.cf),
               tCoder.toBytes(f.col),
-              CompareOp.LESS_OR_EQUAL,
+              CompareOperator.LESS_OR_EQUAL,
               x.upper)
             val up = TypedFilter(Some(upper), FilterType.Atomic)
             TypedFilter.and(low, up)
@@ -290,7 +290,7 @@ object HBaseFilter extends Logging{
             val filter = new SingleColumnValueFilter(
               tCoder.toBytes(f.cf),
               tCoder.toBytes(f.col),
-              CompareOp.EQUAL,
+              CompareOperator.EQUAL,
               bound.value)
             HRF(Array(ScanRange.empty[Array[Byte]]), TypedFilter(Some(filter), FilterType.Atomic), true)
           },
@@ -328,7 +328,7 @@ object HBaseFilter extends Logging{
           val filter = new SingleColumnValueFilter(
             tCoder.toBytes(f.cf),
             tCoder.toBytes(f.col),
-            CompareOp.EQUAL,
+            CompareOperator.EQUAL,
             new BinaryPrefixComparator(b)
           )
           HRF[Array[Byte]](Array(ScanRange.empty[Array[Byte]]), TypedFilter(Some(filter), FilterType.Atomic), handled = true)
@@ -341,7 +341,7 @@ object HBaseFilter extends Logging{
         val filter = new SingleColumnValueFilter(
           tCoder.toBytes(f.cf),
           tCoder.toBytes(f.col),
-          CompareOp.EQUAL,
+          CompareOperator.EQUAL,
           new RegexStringComparator(s".*$value")
         )
         HRF[Array[Byte]](Array(ScanRange.empty[Array[Byte]]), TypedFilter(Some(filter), FilterType.Atomic), handled = true)
@@ -351,7 +351,7 @@ object HBaseFilter extends Logging{
         val filter = new SingleColumnValueFilter(
           tCoder.toBytes(f.cf),
           tCoder.toBytes(f.col),
-          CompareOp.EQUAL,
+          CompareOperator.EQUAL,
           new SubstringComparator(value)
         )
         HRF[Array[Byte]](Array(ScanRange.empty[Array[Byte]]), TypedFilter(Some(filter), FilterType.Atomic), handled = true)
@@ -362,7 +362,7 @@ object HBaseFilter extends Logging{
         val filter = new SingleColumnValueFilter(
           tCoder.toBytes(f.cf),
           tCoder.toBytes(f.col),
-          CompareOp.NOT_EQUAL,
+          CompareOperator.NOT_EQUAL,
           new SubstringComparator(value)
         )
         HRF[Array[Byte]](Array(ScanRange.empty[Array[Byte]]), TypedFilter(Some(filter), FilterType.Atomic), handled = true)

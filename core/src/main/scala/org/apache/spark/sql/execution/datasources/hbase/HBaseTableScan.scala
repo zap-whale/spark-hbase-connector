@@ -393,9 +393,9 @@ private[hbase] class HBaseTableScanRDD(
       columns: Seq[Field], filter: Option[HFilter]): Scan = {
     val scan = {
       (start, end) match {
-        case (Some(lb), Some(ub)) => new Scan(lb, ub)
-        case (Some(lb), None) => new Scan(lb)
-        case (None, Some(ub)) => new Scan(Array[Byte](), ub)
+        case (Some(lb), Some(ub)) => new Scan().withStartRow(lb).withStopRow(ub)
+        case (Some(lb), None) => new Scan().withStartRow(lb)
+        case (None, Some(ub)) => new Scan().withStartRow(Array[Byte]()).withStopRow(ub)
         case _ => new Scan
       }
     }
@@ -496,8 +496,8 @@ private[hbase] class HBaseTableScanRDD(
   private def handleTimeSemantics(query: Query): Unit = {
     // Set timestamp related values if present
     (query, relation.timestamp, relation.minStamp, relation.maxStamp)  match {
-      case (q: Scan, Some(ts), None, None) => q.setTimeStamp(ts)
-      case (q: Get, Some(ts), None, None) => q.setTimeStamp(ts)
+      case (q: Scan, Some(ts), None, None) => q.setTimestamp(ts)
+      case (q: Get, Some(ts), None, None) => q.setTimestamp(ts)
 
       case (q:Scan, None, Some(minStamp), Some(maxStamp)) => q.setTimeRange(minStamp, maxStamp)
       case (q:Get, None, Some(minStamp), Some(maxStamp)) => q.setTimeRange(minStamp, maxStamp)
@@ -508,8 +508,8 @@ private[hbase] class HBaseTableScanRDD(
     }
     if (relation.maxVersions.isDefined) {
       query match {
-        case q: Scan => q.setMaxVersions(relation.maxVersions.get)
-        case q: Get => q.setMaxVersions(relation.maxVersions.get)
+        case q: Scan => q.readVersions(relation.maxVersions.get)
+        case q: Get => q.readVersions(relation.maxVersions.get)
         case _ => throw new IllegalArgumentException("Invalid query provided with maxVersions")
       }
     }

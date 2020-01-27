@@ -26,12 +26,12 @@ import scala.util.control.NonFatal
 import scala.xml.XML
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods._
+import org.apache.hadoop.hbase.{HBaseConfiguration, NamespaceDescriptor, NamespaceNotFoundException, TableName}
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.hbase.client.Put
+import org.apache.hadoop.hbase.client.{ColumnFamilyDescriptorBuilder, Put, TableDescriptorBuilder}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.hadoop.hbase._
 import org.apache.hadoop.mapreduce.Job
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources._
@@ -151,17 +151,17 @@ case class HBaseRelation(
         throw new InvalidRegionNumberException("Creating a new table should " +
           "specify the number of regions which must be greater than 3.")
       }
-      val tableDesc = new HTableDescriptor(tName)
+      val tableDesc = TableDescriptorBuilder.newBuilder(tName)
       cfs.foreach { x =>
-        val cf = new HColumnDescriptor(x.getBytes())
+        val cf = ColumnFamilyDescriptorBuilder.newBuilder(x.getBytes())
         logDebug(s"add family $x to ${catalog.name}")
         maxVersions.foreach(v => cf.setMaxVersions(v))
-        tableDesc.addFamily(cf)
+        tableDesc.setColumnFamily(cf.build)
       }
       val startKey = catalog.shcTableCoder.toBytes("aaaaaaa")
       val endKey = catalog.shcTableCoder.toBytes("zzzzzzz")
       val splitKeys = Bytes.split(startKey, endKey, catalog.numReg - 3)
-      admin.createTable(tableDesc, splitKeys)
+      admin.createTable(tableDesc.build, splitKeys)
       val r = connection.getRegionLocator(tName).getAllRegionLocations
       while(r == null || r.size() == 0) {
         logDebug(s"region not allocated")

@@ -67,7 +67,7 @@ object HBaseRecord {
 
 class DefaultSourceSuite extends SHC with Logging {
 
-  def withCatalog(cat: String, options: Map[String, String] = Map.empty): DataFrame = {
+  def withCatalog(cat: String = defineCatalog(tableName), options: Map[String, String] = Map.empty): DataFrame = {
     sqlContext
       .read
       .options(Map(HBaseTableCatalog.tableCatalog->cat) ++ options)
@@ -75,7 +75,7 @@ class DefaultSourceSuite extends SHC with Logging {
       .load()
   }
 
-  private def prunedFilterScan(cat: String): PrunedFilteredScan = {
+  private def prunedFilterScan(cat: String = defineCatalog(tableName)): PrunedFilteredScan = {
     HBaseRelation(Map(HBaseTableCatalog.tableCatalog->cat),None)(sqlContext)
   }
 
@@ -99,32 +99,32 @@ class DefaultSourceSuite extends SHC with Logging {
     val data = (0 to 255).map { i =>
       HBaseRecord(i, "extra")
     }
-    persistDataInHBase(catalog, data)
+    persistDataInHBase(defineCatalog(tableName), data)
   }
 
   test("empty column") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     df.createOrReplaceTempView("table0")
     val c = sqlContext.sql("select count(1) from table0").rdd.collect()(0)(0).asInstanceOf[Long]
     assert(c == 256)
   }
 
   test("IN and Not IN filter1") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter(($"col0" isin ("row005", "row001", "row002")) and !($"col0" isin ("row001", "row002")))
       .select("col0")
     assert(s.count() == 1)
   }
 
   test("IN and Not IN filter2") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter(($"col0" isin ("row055", "row001", "row002")) and !($"col0" < "row005"))
       .select("col0")
     assert(s.count() == 1)
   }
 
   test("IN filter stack overflow") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val items = (0 to 2000).map{i => s"xaz$i"}
     val filterInItems = Seq("row001") ++: items
 
@@ -133,7 +133,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("NOT IN filter stack overflow") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val items = (0 to 2000).map{i => s"xaz$i"}
     val filterNotInItems = items
 
@@ -142,7 +142,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("IN filter, RDD") {
-    val scan = prunedFilterScan(catalog)
+    val scan = prunedFilterScan()
     val columns = Array("col0")
     val filters =
       Array[org.apache.spark.sql.sources.Filter](
@@ -152,33 +152,33 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("full query") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     assert(df.count() == 256)
   }
 
   test("filtered query0") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter($"col0" <= "row005")
       .select("col0", "col1")
     assert(s.count() == 6)
   }
 
   test("filtered query1") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter($"col0" === "row005" || $"col0" <= "row005")
       .select("col0", "col1")
     assert(s.count() == 6)
   }
 
   test("filtered query2") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter($"col0" === "row005" || $"col0" >= "row005")
       .select("col0", "col1")
     assert(s.count() == 251)
   }
 
   test("filtered query3") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter(($"col0" <= "row050" && $"col0" > "row040") ||
       $"col0" === "row005" ||
       $"col0" === "row020" ||
@@ -189,21 +189,21 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("filtered query4") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     df.createOrReplaceTempView("table1")
     val c = sqlContext.sql("select col1, col0 from table1 where col4 = 5")
     assert(c.count == 1)
   }
 
   test("agg query") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     df.createOrReplaceTempView("table1")
     val c = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
     assert(c.collect.apply(0).apply(0).asInstanceOf[Long] == 50)
   }
 
   test("complicate filtered query") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter((($"col0" <= "row050" && $"col0" > "row040") ||
       $"col0" === "row005" ||
       $"col0" === "row020" ||
@@ -216,7 +216,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("complicate filtered query1") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter((($"col0" <= "row050" && $"col0" > "row040") ||
       $"col0" === "row005" ||
       $"col0" === "row020" ||
@@ -229,7 +229,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("String contains filter") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter((($"col0" <= "row050" && $"col0" > "row040") ||
       $"col0" === "row005" ||
       $"col0" === "row020" ||
@@ -241,7 +241,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("String not contains filter") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter((($"col0" <= "row050" && $"col0" > "row040") ||
       $"col0" === "row005" ||
       $"col0" === "row020" ||
@@ -253,7 +253,7 @@ class DefaultSourceSuite extends SHC with Logging {
   }
 
   test("Or filter") {
-    val df = withCatalog(catalog)
+    val df = withCatalog()
     val s = df.filter($"col0" <= "row050" || $"col7".contains("String60"))
       .select("col0", "col1", "col7")
     assert(s.count() == 52)
@@ -276,16 +276,17 @@ class DefaultSourceSuite extends SHC with Logging {
       HBaseRecord(i, "new")
     }
 
+    val catalogStr = defineCatalog(tableName)
 
-    persistDataInHBase(catalog, oldData, Map(HBaseRelation.TIMESTAMP -> oldMs.toString))
-    persistDataInHBase(catalog, newData)
+    persistDataInHBase(catalogStr, oldData, Map(HBaseRelation.TIMESTAMP -> oldMs.toString))
+    persistDataInHBase(catalogStr, newData)
 
     // Test specific timestamp -- Full scan, Timestamp
-    val individualTimestamp = withCatalog(catalog, Map(HBaseRelation.TIMESTAMP -> oldMs.toString))
+    val individualTimestamp = withCatalog(catalogStr, Map(HBaseRelation.TIMESTAMP -> oldMs.toString))
     assert(individualTimestamp.count() == 101)
 
     // Test getting everything -- Full Scan, No range
-    val everything = withCatalog(catalog)
+    val everything = withCatalog(catalogStr)
     assert(everything.count() == 256)
     // Test getting everything -- Pruned Scan, TimeRange
     val element50 = everything.where(col("col0") === lit("row050")).select("col7").collect()(0)(0)
@@ -294,14 +295,14 @@ class DefaultSourceSuite extends SHC with Logging {
     assert(element200 == "String200: new")
 
     // Test Getting old stuff -- Full Scan, TimeRange
-    val oldRange = withCatalog(catalog, Map(HBaseRelation.MIN_STAMP -> "0", HBaseRelation.MAX_STAMP -> (oldMs + 100).toString))
+    val oldRange = withCatalog(catalogStr, Map(HBaseRelation.MIN_STAMP -> "0", HBaseRelation.MAX_STAMP -> (oldMs + 100).toString))
     assert(oldRange.count() == 101)
     // Test Getting old stuff -- Pruned Scan, TimeRange
     val oldElement50 = oldRange.where(col("col0") === lit("row050")).select("col7").collect()(0)(0)
     assert(oldElement50 == "String50: old")
 
     // Test Getting middle stuff -- Full Scan, TimeRange
-    val middleRange = withCatalog(catalog, Map(HBaseRelation.MIN_STAMP -> "0", HBaseRelation.MAX_STAMP -> (startMs + 100).toString))
+    val middleRange = withCatalog(catalogStr, Map(HBaseRelation.MIN_STAMP -> "0", HBaseRelation.MAX_STAMP -> (startMs + 100).toString))
     assert(middleRange.count() == 256)
     // Test Getting middle stuff -- Pruned Scan, TimeRange
     val middleElement200 = middleRange.where(col("col0") === lit("row200")).select("col7").collect()(0)(0)
@@ -319,9 +320,9 @@ class DefaultSourceSuite extends SHC with Logging {
     htu.deleteTable(TableName.valueOf(tableName))
     createTable(tableName, columnFamilies)
 
-    persistDataInHBase(catalog, data)
+    persistDataInHBase(defineCatalog(tableName), data)
 
-    val keys = withCatalog(catalog).select("col0").distinct().collect().map(a => a.getString(0))
+    val keys = withCatalog().select("col0").distinct().collect().map(a => a.getString(0))
     // There was an issue with the keys being truncated during buildrow.
     // This would result in only the number of keys as large as the first one
     assert(keys.length == 101)
@@ -334,16 +335,16 @@ class DefaultSourceSuite extends SHC with Logging {
     val sql = sqlContext
     import sql.implicits._
 
-    val df1 = withCatalog(catalog)
+    val df1 = withCatalog()
     assert(df1.count() == 101)
 
     // add three more records to the existing table "table1" which has 101 records
     val data = (256 to 258).map { i =>
       HBaseRecord(i, "extra")
     }
-    persistDataInHBase(catalog, data)
+    persistDataInHBase(defineCatalog(tableName), data)
 
-    val df2 = withCatalog(catalog)
+    val df2 = withCatalog()
     assert(df2.count() == 104)
   }
 

@@ -22,9 +22,6 @@ import org.apache.hadoop.hbase.util.Bytes
 
 package object hbase {
   type HBaseType = Array[Byte]
-  //Do not use BinaryType.ordering
-  implicit val order: Ordering[HBaseType] =  ord
-
 
   val ord: Ordering[HBaseType] = new Ordering[HBaseType] {
 
@@ -32,6 +29,9 @@ package object hbase {
       return Bytes.compareTo(x, y)
     }
   }
+
+  //Do not use BinaryType.ordering
+  implicit val order: Ordering[HBaseType] = ord
 
   val ByteMax = -1.asInstanceOf[Byte]
   val ByteMin = 0.asInstanceOf[Byte]

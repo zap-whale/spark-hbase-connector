@@ -229,7 +229,6 @@ private[hbase] object HBaseConnectionKey {
     HConstants.ZOOKEEPER_QUORUM,
     HConstants.ZOOKEEPER_ZNODE_PARENT,
     HConstants.ZOOKEEPER_CLIENT_PORT,
-    HConstants.ZOOKEEPER_RECOVERABLE_WAITTIME,
     HConstants.HBASE_CLIENT_PAUSE,
     HConstants.HBASE_CLIENT_RETRIES_NUMBER,
     HConstants.HBASE_RPC_TIMEOUT_KEY,
@@ -238,9 +237,7 @@ private[hbase] object HBaseConnectionKey {
     HConstants.RPC_CODEC_CONF_KEY,
     HConstants.USE_META_REPLICAS,
     RpcControllerFactory.CUSTOM_CONTROLLER_CONF_KEY)
-
 }
-
 
 /**
  * To log the state of [[HBaseConnectionCache]]
