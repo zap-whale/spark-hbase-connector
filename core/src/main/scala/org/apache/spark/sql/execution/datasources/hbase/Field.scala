@@ -69,16 +69,6 @@ case class Field(
 
   lazy val exeSchema = schema
 
-  // converter from avro to catalyst structure
-  lazy val avroToCatalyst: Option[Any => Any] = {
-    schema.map(SchemaConverters.createConverterToSQL)
-  }
-
-  // converter from catalyst to avro
-  lazy val catalystToAvro: (Any) => Any ={
-    SchemaConverters.createConverterToAvro(dt, colName, "recordNamespace")
-  }
-
   val length: Int = {
     if (len == -1) {
       dt match {

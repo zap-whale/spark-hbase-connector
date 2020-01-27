@@ -23,10 +23,18 @@ import org.apache.spark.sql.execution.datasources.hbase.{Field, HBaseType}
 
 class Avro(f:Option[Field] = None) extends SHCDataType {
 
+  private lazy val avroToCatalyst: Option[Any => Any] = {
+    f.get.schema.map(SchemaConverters.createConverterToSQL)
+  }
+
+  private lazy val catalystToAvro: (Any) => Any ={
+    SchemaConverters.createConverterToAvro(f.get.dt, f.get.colName, "recordNamespace")
+  }
+
   def fromBytes(src: HBaseType): Any = {
     if (f.isDefined) {
       val m = AvroSerde.deserialize(src, f.get.exeSchema.get)
-      val n = f.get.avroToCatalyst.map(_ (m))
+      val n = avroToCatalyst.map(_ (m))
       n.get
     } else {
       throw new UnsupportedOperationException(
@@ -37,7 +45,7 @@ class Avro(f:Option[Field] = None) extends SHCDataType {
   def toBytes(input: Any): Array[Byte] = {
     // Here we assume the top level type is structType
     if (f.isDefined) {
-      val record = f.get.catalystToAvro(input)
+      val record = catalystToAvro(input)
       AvroSerde.serialize(record, f.get.schema.get)
     } else {
       throw new UnsupportedOperationException(
