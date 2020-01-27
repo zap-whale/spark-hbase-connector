@@ -68,7 +68,7 @@ object AvroHBaseRecord {
 class AvroSourceSuite extends SHC with Logging{
 
   // 'catalog' is used when saving data to HBase
-  override def catalog = s"""{
+  def catalog = s"""{
             |"table":{"namespace":"default", "name":"avrotable", "tableCoder":"PrimitiveType"},
             |"rowkey":"key",
             |"columns":{

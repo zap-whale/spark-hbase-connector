@@ -20,7 +20,7 @@ import org.apache.spark.sql.DataFrame
 
 class CompositeKeySuite extends SHC with Logging {
 
-  override def catalog = s"""{
+  def catalog = s"""{
             |"table":{"namespace":"default", "name":"table1", "tableCoder":"PrimitiveType"},
             |"rowkey":"key1:key2",
             |"columns":{

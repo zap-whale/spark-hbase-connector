@@ -50,7 +50,7 @@ object PCompositeRecord {
 }
 
 class PhoenixCompositeKeySuite extends SHC with Logging {
-  override def catalog = s"""{
+  def catalog = s"""{
                              |"table":{"namespace":"default", "name":"table1", "tableCoder":"Phoenix"},
                              |"rowkey":"key1:key2",
                              |"columns":{
