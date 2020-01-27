@@ -113,8 +113,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter(($"col0" isin ("row005", "row001", "row002")) and !($"col0" isin ("row001", "row002")))
       .select("col0")
-    s.explain(true)
-    s.show
     assert(s.count() == 1)
   }
 
@@ -122,8 +120,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter(($"col0" isin ("row055", "row001", "row002")) and !($"col0" < "row005"))
       .select("col0")
-    s.explain(true)
-    s.show
     assert(s.count() == 1)
   }
 
@@ -133,8 +129,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val filterInItems = Seq("row001") ++: items
 
     val s = df.filter($"col0" isin(filterInItems:_*)).select("col0")
-    s.explain(true)
-    s.show()
     assert(s.count() == 1)
   }
 
@@ -144,8 +138,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val filterNotInItems = items
 
     val s = df.filter(not($"col0" isin(filterNotInItems:_*))).select("col0")
-    s.explain(true)
-    s.show
     assert(s.count() == df.count())
   }
 
@@ -161,7 +153,6 @@ class DefaultSourceSuite extends SHC with Logging {
 
   test("full query") {
     val df = withCatalog(catalog)
-    df.show
     assert(df.count() == 256)
   }
 
@@ -169,7 +160,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" <= "row005")
       .select("col0", "col1")
-    s.show
     assert(s.count() == 6)
   }
 
@@ -177,7 +167,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" === "row005" || $"col0" <= "row005")
       .select("col0", "col1")
-    s.show
     assert(s.count() == 6)
   }
 
@@ -185,7 +174,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" === "row005" || $"col0" >= "row005")
       .select("col0", "col1")
-    s.show
     assert(s.count() == 251)
   }
 
@@ -197,7 +185,6 @@ class DefaultSourceSuite extends SHC with Logging {
       $"col0" ===  "r20" ||
       $"col0" <= "row005")
       .select("col0", "col1")
-    s.show
     assert(s.count() == 17)
   }
 
@@ -205,7 +192,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     df.createOrReplaceTempView("table1")
     val c = sqlContext.sql("select col1, col0 from table1 where col4 = 5")
-    c.show()
     assert(c.count == 1)
   }
 
@@ -213,7 +199,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     df.createOrReplaceTempView("table1")
     val c = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
-    c.show()
     assert(c.collect.apply(0).apply(0).asInstanceOf[Long] == 50)
   }
 
@@ -227,7 +212,6 @@ class DefaultSourceSuite extends SHC with Logging {
       ($"col4" === 1 ||
       $"col4" === 42))
       .select("col0", "col1", "col4")
-    s.show
     assert(s.count() == 2)
   }
 
@@ -241,7 +225,6 @@ class DefaultSourceSuite extends SHC with Logging {
       ($"col4" === 1 ||
         $"col4" === 42))
       .select("col0", "col1", "col4")
-    s.show
     assert(s.count() == 17)
   }
 
@@ -254,7 +237,6 @@ class DefaultSourceSuite extends SHC with Logging {
       $"col0" <= "row005") &&
       $"col7".contains("String3"))
     .select("col0", "col1", "col7")
-    s.show
     assert(s.count() == 1)
   }
 
@@ -267,7 +249,6 @@ class DefaultSourceSuite extends SHC with Logging {
       $"col0" <= "row005") &&
       !$"col7".contains("String3"))
       .select("col0", "col1", "col7")
-    s.show
     assert(s.count() == 16)
   }
 
@@ -275,7 +256,6 @@ class DefaultSourceSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" <= "row050" || $"col7".contains("String60"))
       .select("col0", "col1", "col7")
-    s.show
     assert(s.count() == 52)
   }
 

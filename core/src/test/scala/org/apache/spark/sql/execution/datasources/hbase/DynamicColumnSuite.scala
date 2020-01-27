@@ -153,7 +153,6 @@ class DynamicColumnSuite extends SHC with Logging {
 
     sc.parallelize(data).toDF.write
 
-
     def data = (0 to 2).map { i =>
       HBaseRecordExtended(i, "schema less")
     }
@@ -168,12 +167,9 @@ class DynamicColumnSuite extends SHC with Logging {
       HBaseRelation.MAX_VERSIONS -> "3"
     ))
 
-
     val rows = result.take(10)
 
-
     assert(rows.size == 3)
-    println(rows.mkString(" | "))
     assert(rows(0).size == 9)
     assert(rows(0).getBoolean(1) == false)
     assert(rows(0).getMap[Long, Double](2).size == 2)
@@ -188,7 +184,6 @@ class DynamicColumnSuite extends SHC with Logging {
 
     sc.parallelize(data).toDF.write
 
-
     def data = (3 to 5).map { i =>
       HBaseRecordDynamic(i, "schema less")
     }
@@ -202,13 +197,9 @@ class DynamicColumnSuite extends SHC with Logging {
       HBaseRelation.MAX_VERSIONS -> "3"
     ))
 
-
     val rows = result.take(10)
 
-
     assert(rows.size == 6)
-
-    println(rows.mkString(" | "))
 
     assert(rows(0).size == 10)
 
@@ -219,7 +210,6 @@ class DynamicColumnSuite extends SHC with Logging {
     import sql.implicits._
 
     sc.parallelize(data).toDF.write
-
 
     def data = (3 to 5).map { i =>
       HBaseRecordDynamic(i, "schema less")
@@ -234,13 +224,9 @@ class DynamicColumnSuite extends SHC with Logging {
       HBaseRelation.MAX_VERSIONS -> "3"
     ))
 
-
     val rows = result.take(10)
 
-
     assert(rows.size == 6)
-
-    println(rows.mkString(" | "))
 
     assert(rows(0).size == 3)
 

@@ -99,7 +99,6 @@ class PhoenixSuite extends SHC with Logging {
 
   test("full query") {
     val df = withCatalog(catalog)
-    df.show
     assert(df.count() == 256)
     assert(df.first().getByte(8) == 0)
   }
@@ -115,8 +114,6 @@ class PhoenixSuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter(($"col0" isin ("row005", "row001", "row002")) and !($"col0" isin ("row001", "row002")))
       .select("col0", "col8")
-    s.explain(true)
-    s.show
     assert(s.count() == 1)
     assert(s.first().getByte(1) == 5)
   }

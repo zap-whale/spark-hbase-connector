@@ -114,8 +114,6 @@ class AvroSourceKeySuite extends SHC with Logging{
 
   test("full query") {
     val df = withCatalog(avroCatalog)
-    df.show
-    df.printSchema()
     assert(df.count() == 256)
   }
 
@@ -127,8 +125,6 @@ class AvroSourceKeySuite extends SHC with Logging{
       .format("org.apache.spark.sql.execution.datasources.hbase")
       .save()
     val newDF = withCatalog(avroCatalogInsert)
-    newDF.show
-    newDF.printSchema()
     assert(newDF.count() == 256)
   }
 
@@ -136,7 +132,6 @@ class AvroSourceKeySuite extends SHC with Logging{
     val df = withCatalog(avroCatalog)
     val r = df.filter($"col1.name" === "name005" || $"col1.name" <= "name005")
       .select("col0", "col1.favorite_color", "col1.favorite_number")
-    r.show
     assert(r.count() == 6)
   }
 
@@ -144,7 +139,6 @@ class AvroSourceKeySuite extends SHC with Logging{
     val df = withCatalog(avroCatalog)
     val s = df.filter($"col1.name" <= "name005" || $"col1.name".contains("name007"))
       .select("col0", "col1.favorite_color", "col1.favorite_number")
-    s.show
     assert(s.count() == 7)
   }
 }

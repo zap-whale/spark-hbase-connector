@@ -30,18 +30,11 @@ import org.apache.spark.sql.execution.datasources.hbase
 class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAndAfterAll  with Logging {
 
   implicit val order =  BinaryType.ordering
-  var num = 1
 
-  def display() {
-    logInfo(s"test case $num:")
-    num += 1
-  }
   test("Test andRange 1") {
     val v = ScanRange.and(ScanRange(Some(Bound(50, true)), Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(52, false))),
         ScanRange(Some(Bound(80, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
     val ret = Set(ScanRange(Some(Bound(50, true)), Some(Bound(52, false))),
       ScanRange(Some(Bound(80, true)), Some(Bound(100, false)))
     )
@@ -52,8 +45,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
         ScanRange(Some(Bound(80, false)), Some(Bound(120, false)))))
 
-    display
-    v.foreach(x => logDebug(x.toString))
     val ret = Set(ScanRange(Some(Bound(50, false)), Some(Bound(52, true))),
       ScanRange(Some(Bound(80, false)), Some(Bound(100, false)))
     )
@@ -63,9 +54,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.and(ScanRange(None, Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
         ScanRange(Some(Bound(80, false)), Some(Bound(120, false)))))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
       ScanRange(Some(Bound(80, false)), Some(Bound(100, false)))
@@ -77,9 +65,7 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.and(ScanRange[Int](None, None),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
         ScanRange(Some(Bound(80, false)), Some(Bound(120, false)))))
-
-    display
-    v.foreach(x => logDebug(x.toString))
+    
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
       ScanRange(Some(Bound(80, false)), Some(Bound(120, false)))
     )
@@ -90,9 +76,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.and(ScanRange[Int](None, None),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
         ScanRange(Some(Bound(80, false)), None)))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(52, true))),
       ScanRange(Some(Bound(80, false)), None)
@@ -105,9 +88,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(None, Some(Bound(52, true))),
         ScanRange(Some(Bound(80, false)), None)))
 
-    display
-    v.foreach(x => logDebug(x.toString))
-
     val ret = Set(ScanRange(None, Some(Bound(52, true))),
       ScanRange(Some(Bound(80, false)), None)
     )
@@ -118,8 +98,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.and(ScanRange(Some(Bound(50, true)), Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
     val ret = Set.empty
     assert(v.toSet == ret)
   }
@@ -128,8 +106,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.and(ScanRange(Some(Bound(50, true)), Some(Bound(50, true))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(50, false)), None)))
-    display
-    v.foreach(x => logDebug(x.toString))
     val ret = Set.empty
     assert(v.toSet == ret)
   }
@@ -137,8 +113,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test andRange 9") {
     val v = ScanRange.and(ScanRange(Some(Bound(50, true)), Some(Bound(50, true))),
       Array(ScanRange[Int](None, None)))
-    display
-    v.foreach(x => logDebug(x.toString))
     val ret = Set(ScanRange(Some(Bound(50, true)), Some(Bound(50, true))))
     assert(v.toSet == ret)
   }
@@ -146,9 +120,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test andRange 19") {
     val v = ScanRange.and(ScanRange[Int](None, None),
       Array(ScanRange[Int](None, None)))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange[Int](None, None))
 
@@ -162,9 +133,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(5, true)), Some(Bound(15, false))),
         ScanRange(Some(Bound(35, true)), Some(Bound(45, false)))))
 
-    display
-    v.foreach(x => logDebug(x.toString))
-
     val ret = Set(ScanRange(Some(Bound(10, true)), Some(Bound(15, false))),
       ScanRange(Some(Bound(35, true)), Some(Bound(40, true))))
 
@@ -176,9 +144,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(5, true)), Some(Bound(15, false)))),
       Array(ScanRange[Int](None, None)))
 
-    display
-    v.foreach(x => logDebug(x.toString))
-
     val ret = Set(ScanRange(Some(Bound(5, true)), Some(Bound(15, false))))
 
     assert(v.size == ret.size && v.toSet == ret)
@@ -189,8 +154,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(60, false))),
         ScanRange(Some(Bound(80, true)), Some(Bound(120, false))),
         ScanRange(Some(Bound(150, true)), Some(Bound(200, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(120, false))),
       ScanRange(Some(Bound(150, true)), Some(Bound(200, false))))
@@ -202,8 +165,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(Some(Bound(50, true)), Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(120, false))))
 
@@ -214,8 +175,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(Some(Bound(50, false)), Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
       ScanRange(Some(Bound(50, false)), Some(Bound(120, false))))
@@ -226,8 +185,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(None, Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(None, Some(Bound(120, false))))
     assert(v.toSet == ret)
@@ -237,8 +194,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(None, Some(Bound(100, false))),
       Array(ScanRange(None, Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), Some(Bound(120, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(None, Some(Bound(120, false))))
     assert(v.toSet == ret)
@@ -249,8 +204,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(Some(Bound(0, true)), Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), None)))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), None))
     assert(v.toSet == ret)
@@ -261,8 +214,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(None, Some(Bound(100, false))),
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(50, false))),
         ScanRange(Some(Bound(100, true)), None)))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(None, None))
     assert(v.toSet == ret)
@@ -273,8 +224,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(60, false))),
         ScanRange(Some(Bound(80, true)), Some(Bound(120, false))),
         ScanRange(Some(Bound(150, true)), Some(Bound(200, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(200, false))))
 
@@ -286,8 +235,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       Array(ScanRange(Some(Bound(0, true)), Some(Bound(60, false))),
         ScanRange(Some(Bound(80, true)), Some(Bound(120, false))),
         ScanRange(Some(Bound(150, true)), Some(Bound(200, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(0, true)), Some(Bound(60, false))),
       ScanRange(Some(Bound(70, true)), None))
@@ -298,9 +245,7 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 10") {
     val v = ScanRange.or(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       Array(ScanRange(Some(Bound(71, true)), Some(Bound(71, true)))))
-    display
-    v.foreach(x => logDebug(x.toString))
-
+    
     val ret = Set(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       ScanRange(Some(Bound(71, true)), Some(Bound(71, true))))
 
@@ -310,8 +255,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 11") {
     val v = ScanRange.or(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       Array(ScanRange(Some(Bound(70, true)), Some(Bound(71, true)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(70, true)), Some(Bound(71, true))))
 
@@ -321,8 +264,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 12") {
     val v = ScanRange.or(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       Array(ScanRange(Some(Bound(70, false)), Some(Bound(71, true)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(70, true)), Some(Bound(71, true))))
 
@@ -332,8 +273,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 13") {
     val v = ScanRange.or(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       Array(ScanRange(None, Some(Bound(70, false)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(None, Some(Bound(70, true))))
 
@@ -343,8 +282,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 14") {
     val v = ScanRange.or(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       Array(ScanRange(Some(Bound(70, false)), None)))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(70, true)), None))
 
@@ -354,8 +291,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 15") {
     val v = ScanRange.or(ScanRange(Some(Bound(80, false)), Some(Bound(90, false))),
       Array(ScanRange(Some(Bound(70, true)), Some(Bound(70, true)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(70, true)), Some(Bound(70, true))),
       ScanRange(Some(Bound(80, false)), Some(Bound(90, false))))
@@ -366,8 +301,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 16") {
     val v = ScanRange.or(ScanRange(Some(Bound(80, false)), Some(Bound(90, false))),
       Array(ScanRange(Some(Bound(100, true)), Some(Bound(100, true)))))
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(100, true)), Some(Bound(100, true))),
       ScanRange(Some(Bound(80, false)), Some(Bound(90, false))))
@@ -383,8 +316,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       ScanRange(Some(Bound("row040", false)), Some(Bound("row050", true)))
     )
     val v = ScanRange.or(ScanRange(None, Some(Bound("row005", true))),tmp)
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(
       ScanRange(None, Some(Bound("row005", true))),
@@ -403,8 +334,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
       ScanRange(Some(Bound(Bytes.toBytes(s"row040"), false)), Some(Bound(Bytes.toBytes(s"row050"), true)))
     )
     val v = ScanRange.or(ScanRange(None, Some(Bound(Bytes.toBytes(s"row005"), true))),tmp)
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(
       ScanRange(None, Some(Bound(Bytes.toBytes(s"row005"), true))),
@@ -419,9 +348,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange(Some(Bound(10, true)), Some(Bound(20, true))),
       Array(ScanRange(Some(Bound(10, true)), Some(Bound(20, true)))))
 
-    display
-    v.foreach(x => logDebug(x.toString))
-
     val ret = Set(ScanRange(Some(Bound(10, true)), Some(Bound(20, true))))
 
     assert(v.size == ret.size && v.toSet == ret)
@@ -433,9 +359,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
     val v = ScanRange.or(ScanRange[Int](None, None),
       Array(ScanRange[Int](None, None)))
 
-    display
-    v.foreach(x => logDebug(x.toString))
-
     val ret = Set(ScanRange[Int](None, None))
 
     assert(v.size == ret.size && v.toSet == ret)
@@ -444,9 +367,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
   test("Test orRange 21") {
     val v = ScanRange.or(ScanRange(Some(Bound(10, true)), Some(Bound(20, true))),
       Array(ScanRange(Some(Bound(10, true)), Some(Bound(20, false)))))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(10, true)), Some(Bound(20, true))))
 
@@ -459,9 +379,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
         ScanRange(Some(Bound(30, true)), Some(Bound(40, true)))),
       Array(ScanRange(Some(Bound(5, true)), Some(Bound(15, false))),
         ScanRange(Some(Bound(35, true)), Some(Bound(45, false)))))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange(Some(Bound(5, true)), Some(Bound(20, true))),
       ScanRange(Some(Bound(30, true)), Some(Bound(45, false))))
@@ -478,9 +395,6 @@ class ScanRangeTestSuite  extends FunSuite with BeforeAndAfterEach with BeforeAn
         Some(Bound[Array[Byte]](Bytes.toBytes("row005"), true))),
         ScanRange[Array[Byte]](Some(Bound(Array.fill(6)(Byte.MinValue), true)),
           Some(Bound[Array[Byte]](Array.fill(6)(-1: Byte), true)))))
-
-    display
-    v.foreach(x => logDebug(x.toString))
 
     val ret = Set(ScanRange[Array[Byte]](Some(Bound[Array[Byte]](Array.fill(6)(0: Byte), true)),
       Some(Bound[Array[Byte]](Bytes.toBytes("row005"), true))),

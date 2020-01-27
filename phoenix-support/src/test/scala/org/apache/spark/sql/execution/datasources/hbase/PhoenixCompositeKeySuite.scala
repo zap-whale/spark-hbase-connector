@@ -91,7 +91,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
 
   test("full query") {
     val df = withCatalog(catalog)
-    df.show
     assert(df.count() == 256)
   }
 
@@ -99,7 +98,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" <= "row050" && $"col01" > 40)
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 5)
   }
 
@@ -107,7 +105,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" <= "row050" && $"col01" >= 40)
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 6)
   }
 
@@ -115,7 +112,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" >= "row250" && $"col01" < 50)
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 3)
   }
 
@@ -123,7 +119,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" <= "row010")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 11)
   }
 
@@ -131,14 +126,12 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" === "row010")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 1)
   }
   test("filtered query51") {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" === "row011")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 1)
   }
 
@@ -146,10 +139,8 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
     val df = withCatalog(catalog)
     val s = df.filter($"col00" === "row005")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 1)
   }
-
 
   test("filtered query6") {
     val df = withCatalog(catalog)
@@ -159,10 +150,8 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
       $"col00" ===  "r20" ||   // not included
       $"col00" <= "row010")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 22)
   }
-
 
   test("filtered query7") {
     val df = withCatalog(catalog)
@@ -172,7 +161,6 @@ class PhoenixCompositeKeySuite extends SHC with Logging {
       $"col00" ===  "r20" ||   // not included
       $"col00" <= "row005")    // row005 not included
       .select("col00", "col01","col1")
-    s.show
     assert(s.count() == 17)
   }
 }

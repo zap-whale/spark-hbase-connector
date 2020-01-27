@@ -75,12 +75,9 @@ class DataTypeConverter extends SHC with Logging{
     df.createOrReplaceTempView("table")
     val c = sqlContext.sql("select count(col1) from table")
     // c.queryExecution
-    c.show
     val se = df.filter($"col2" > 12).filter($"col4" < Array(10.toByte)).select("col1")
 
     val se1 = df.filter($"col2" > 12).filter($"col4" < Array(10.toByte)).select("col1")
     se.count()
-    se1.collect.foreach(println(_))
-    println(df)
   }
 }

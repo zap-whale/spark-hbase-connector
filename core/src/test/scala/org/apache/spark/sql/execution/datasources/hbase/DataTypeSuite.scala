@@ -90,69 +90,59 @@ class DataTypeSuite extends SHC with Logging {
   test("less than 0") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" < 0)
-    s.show
     assert(s.count() == 16)
   }
 
   test("lessequal than -10") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" <= -10)
-    s.show
     assert(s.count() == 11)
   }
 
   test("lessequal than -9") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" <= -9)
-    s.show
     assert(s.count() == 12)
   }
 
   test("greaterequal than -9") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" >= -9)
-    s.show
     assert(s.count() == 21)
   }
 
   test("greaterequal  than 0") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" >= 0)
-    s.show
     assert(s.count() == 16)
   }
 
   test("greater than 10") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" > 10)
-    s.show
     assert(s.count() == 10)
   }
 
   test("and") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" > -10 && $"col0" <= 10)
-    s.show
     assert(s.count() == 11)
   }
 
   test("or") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" <= -10 || $"col0" > 10)
-    s.show
     assert(s.count() == 21)
   }
 
   test("all") {
     val df = withCatalog(catalog)
     val s = df.filter($"col0" >= -100)
-    s.show
     assert(s.count() == 32)
   }
 
   test("full query") {
     val df = withCatalog(catalog)
-    df.show
     assert(df.count() == 32)
   }
 }

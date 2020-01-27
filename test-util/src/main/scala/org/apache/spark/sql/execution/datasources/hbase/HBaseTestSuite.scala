@@ -73,13 +73,11 @@ class HBaseTestSuite extends FunSuite with BeforeAndAfterEach with BeforeAndAfte
   def setupTable() {
     val config = htu.getConfiguration
     htu.createMultiRegionTable(TableName.valueOf(tableName), columnFamilies)
-    println("create htable t1")
     val connection = ConnectionFactory.createConnection(config)
     val r = connection.getRegionLocator(TableName.valueOf("t1"))
     table = connection.getTable(TableName.valueOf("t1"))
 
     val regionLocations = r.getAllRegionLocations.asScala.toSeq
-    println(s"$regionLocations size: ${regionLocations.size}")
     (0 until 100).foreach { x =>
       var put = new Put(Bytes.toBytes(s"row$x"))
       (0 until 5).foreach { y =>
