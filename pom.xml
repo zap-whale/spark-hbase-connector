@@ -23,21 +23,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hortonworks</groupId>
   <artifactId>shc</artifactId>
-  <version>1.1.3-2.4-s_2.11</version>
+  <version>1.0-s2.3-h2.1.6-p5.0-s_2.11</version>
   <packaging>pom</packaging>
   <name>HBase Spark Connector Project Parent POM</name>
   <url>https://github.com/hortonworks-spark/shc</url>
 
   <properties>
     <maven.version>3.5.4</maven.version>
-    <spark.version>2.4.0</spark.version>
-    <hbase.version>2.0.4</hbase.version>
-    <phoenix.version>5.0.0-HBase-2.0</phoenix.version>
     <test_classpath_file>${project.build.directory}/spark-test-classpath.txt</test_classpath_file>
     <java.version>1.8</java.version>
-    <scala.version>2.11.12</scala.version>
-    <scala.macros.version>2.1.0</scala.macros.version>
-    <scala.binary.version>2.11</scala.binary.version>
     <avro.version>1.8.2</avro.version>
     <codahale.metrics.version>3.0.0</codahale.metrics.version>
     <codehaus.jackson.version>1.8.8</codehaus.jackson.version>
@@ -169,10 +163,18 @@
 
   <profiles>
     <profile>
-      <id>scala-2.11</id>
+      <id>hdp3.1.5-s_2.11</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      <properties>
+        <spark.version>2.3.2</spark.version>
+        <hbase.version>2.1.6</hbase.version>
+        <phoenix.version>5.0.0-HBase-2.0</phoenix.version>
+        <scala.version>2.11.12</scala.version>
+        <scala.macros.version>2.1.0</scala.macros.version>
+        <scala.binary.version>2.11</scala.binary.version>
+      </properties>
     </profile>
   </profiles>
 
